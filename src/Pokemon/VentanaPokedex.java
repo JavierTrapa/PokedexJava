@@ -65,24 +65,27 @@ public class VentanaPokedex extends javax.swing.JFrame {
         repaint();
         escribeDatos();
     }
-    /*private String evolucionPrevia(Pokemon p){
+    private String evolucionPrevia(Pokemon p){
         String evolucion;
-        Pokemon aux;
-        if (p.evolution_chain_id==0){
+        Pokemon aux=listaPokemons.get(String.valueOf(p.evolution_parent_pokemon_id));
+        if (p.evolution_parent_pokemon_id==0){
             evolucion="Nadie";
         }else{
-            aux.id=p.evolution_chain_id;
+            aux.id=p.evolution_parent_pokemon_id;
             evolucion=aux.nombre;
         }
         return evolucion;
-    }*/
+    }
     
     private String parametroEvolucion(Pokemon p){
         if(p.evolution_parameter.length()>2){
-            return p.evolution_parameter;
+            return (" con una "+p.evolution_parameter);
+        }else if(p.evolution_parameter.length()>0){
+            return (" con nivel "+p.evolution_parameter);
         }else{
-            return ("nivel "+p.evolution_parameter);
+            return "";    
         }
+        
     }
     
     private void escribeDatos(){
@@ -90,8 +93,8 @@ public class VentanaPokedex extends javax.swing.JFrame {
         if(p!=null){
             jLabel2.setText(p.nombre+"     "+p.id);
             jTextArea1.setText("Nombre: "+p.nombre+'\n'+"Numero: "+p.id+'\n'+
-                    "Evoluciona de: "+/*evolucionPrevia*/'\n'+
-                    "Evoluciona con: "+parametroEvolucion(p)+'\n'+
+                    "Evoluciona de: "+evolucionPrevia(p)+
+                    parametroEvolucion(p)+'\n'+
                     "Altura: "+p.height+"dm"+'\n'+
                     "Peso: "+p.weight+"hg"+'\n'+
                     "Especie: "+p.species+'\n'+
@@ -136,7 +139,7 @@ public class VentanaPokedex extends javax.swing.JFrame {
                 Pokemon p = new Pokemon();
                 p.nombre=resultadoConsulta.getString(2);
                 p.generation_id=resultadoConsulta.getInt(5);
-                p.evolution_chain_id=resultadoConsulta.getInt(6);
+                p.evolution_parent_pokemon_id=resultadoConsulta.getInt(7);
                 p.species=resultadoConsulta.getString(12);
                 p.id=resultadoConsulta.getInt(1);
                 p.height=resultadoConsulta.getInt(10);
@@ -145,6 +148,7 @@ public class VentanaPokedex extends javax.swing.JFrame {
                 p.capture_rate=resultadoConsulta.getInt(17);
                 p.base_experience=resultadoConsulta.getInt(18);
                 p.base_happiness=resultadoConsulta.getInt(19);
+                p.evolution_parameter=resultadoConsulta.getString(9);
                 
                 listaPokemons.put(resultadoConsulta.getString(1), p);
             }
@@ -256,7 +260,7 @@ public class VentanaPokedex extends javax.swing.JFrame {
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(28, 28, 28)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 216, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jTextField1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -315,28 +319,82 @@ public class VentanaPokedex extends javax.swing.JFrame {
 
     private void jButtonSiguienteMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSiguienteMousePressed
         contador++;
-        if(contador>516){contador=516;}
+        if(contador>507){contador=507;}
         dibujaElPokemonQueEstaEnLaPosicion(contador);
     }//GEN-LAST:event_jButtonSiguienteMousePressed
 
     private void jButton1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MousePressed
+        //Busqueda por nombre
+        //no funciona
+        contador=0;
+        Pokemon aux=listaPokemons.get(String.valueOf(contador));
         if(jTextField1.getText()!=""){
-            //if(jTextField1.getText()==p.nombre){
-                
-            //}
+            while(jTextField1.getText()!=aux.nombre){
+                contador++;
+            }
+            if(contador==508){
+                jTextField1.setText("No se han encontrado resultados");
+                contador=0;
+            }else{
+                if(aux!=null){
+                dibujaElPokemonQueEstaEnLaPosicion(contador);
+                jLabel2.setText(aux.nombre+"     "+aux.id);
+                jTextArea1.setText("Nombre: "+aux.nombre+'\n'+"Numero: "+aux.id+'\n'+
+                    "Evoluciona de: "+evolucionPrevia(aux)+
+                    parametroEvolucion(aux)+'\n'+
+                    "Altura: "+aux.height+"dm"+'\n'+
+                    "Peso: "+aux.weight+"hg"+'\n'+
+                    "Especie: "+aux.species+'\n'+
+                    "Habitat: "+aux.habitat+'\n'+
+                    "% de captura: "+aux.capture_rate+"%"+'\n'+
+                    "Experiencia base: "+aux.base_experience+'\n'+
+                    "Felicidad base: "+aux.base_happiness+'\n');
+                contador=aux.id-1;
+            
+        }else{
+            jLabel2.setText("No Hay Datos");
+            jTextArea1.setText("No Hay Datos");
+            dibujaElPokemonQueEstaEnLaPosicion(aux.id);
+            contador=aux.id-1;
+        }
+            }
         }else{
             jLabel1.setText("No se han introducido datos");
         }
     }//GEN-LAST:event_jButton1MousePressed
 
     private void jButton2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MousePressed
-        if(jTextField1.getText()!=""){
-            //if(jTextField1.getText()==p.nombre){
-                
+        //Busqueda por id
+        //funciona pero no logro sacar las excepciones
+        if(jTextField2.getText()!=""){
+            
+            Pokemon aux=listaPokemons.get(String.valueOf(jTextField2.getText()));
+            if(aux!=null){
+                dibujaElPokemonQueEstaEnLaPosicion(aux.id-1);
+                jLabel2.setText(aux.nombre+"     "+aux.id);
+                jTextArea1.setText("Nombre: "+aux.nombre+'\n'+"Numero: "+aux.id+'\n'+
+                    "Evoluciona de: "+evolucionPrevia(aux)+
+                    parametroEvolucion(aux)+'\n'+
+                    "Altura: "+aux.height+"dm"+'\n'+
+                    "Peso: "+aux.weight+"hg"+'\n'+
+                    "Especie: "+aux.species+'\n'+
+                    "Habitat: "+aux.habitat+'\n'+
+                    "% de captura: "+aux.capture_rate+"%"+'\n'+
+                    "Experiencia base: "+aux.base_experience+'\n'+
+                    "Felicidad base: "+aux.base_happiness+'\n');
+                contador=aux.id-1;
+            
+        }else{
+            jLabel2.setText("No Hay Datos");
+            jTextArea1.setText("No Hay Datos");
+            dibujaElPokemonQueEstaEnLaPosicion(aux.id);
+            contador=aux.id-1;
+        }
             //}
         }else{
-            jLabel1.setText("No se han introducido datos");
+            jLabel2.setText("No se han introducido datos");
         }
+       
     }//GEN-LAST:event_jButton2MousePressed
 
     
